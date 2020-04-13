@@ -1,12 +1,10 @@
 #-START---Common Github Properties
 variable "github_oauth_token" {
   type = "string"
-  default = "generate-github-oauth-token-and-replace-here"
 }
 
 variable "github_repo_owner" {
   type = "string"
-  default = "vijab"
 }
 #-END---Common Github Properties
 
