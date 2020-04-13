@@ -1,7 +1,13 @@
+data "aws_region" "current" {}
+
+locals {
+  codebuild_s3_bucket_name = join("-", var.repo_name, var.repo_branch)
+}
+
 resource "aws_codebuild_project" "codebuild_docker_image" {
   name = "${var.ecs_image_name}_image"
   build_timeout = "300"
-  service_role = "${var.iam_code_build_role_arn}"
+  service_role = aws_iam_role.cicd_role.arn
   artifacts {
     type = "CODEPIPELINE"
   }
@@ -16,7 +22,7 @@ resource "aws_codebuild_project" "codebuild_docker_image" {
     privileged_mode = "true"
     environment_variable {
       name  = "IMAGE_REPO_NAME"
-      value = "${var.ecs_image_name}"
+      value = var.ecs_image_name
     }
   }
   source {
@@ -27,9 +33,9 @@ resource "aws_codebuild_project" "codebuild_docker_image" {
 
 resource "aws_codepipeline" "build_and_deploy" {
   name = "${var.ecs_image_name}_deployment"
-  role_arn = "${var.iam_code_deploy_role_arn}"
+  role_arn = aws_iam_role.cicd_role.arn
   artifact_store {
-    location = "${var.s3_code_build_bucket}"
+    location = local.codebuild_s3_bucket_name
     type = "S3"
   }
   stage {
@@ -43,11 +49,11 @@ resource "aws_codepipeline" "build_and_deploy" {
       output_artifacts = ["code"]
 
       configuration = {
-        OAuthToken           = "${var.github_oauth_token}"
-        Owner                = "${var.github_repo_owner}"
-        Repo                 = "${var.repo_name}"
-        Branch               = "${var.repo_branch}"
-        PollForSourceChanges = "${var.poll_source_changes}"
+        OAuthToken           = var.github_oauth_token
+        Owner                = var.github_repo_owner
+        Repo                 = var.repo_name
+        Branch               = var.repo_branch
+        PollForSourceChanges = var.poll_source_changes
       }
     }
   }
@@ -63,7 +69,7 @@ resource "aws_codepipeline" "build_and_deploy" {
       input_artifacts = ["code"]
 
       configuration = {
-        ProjectName = "${aws_codebuild_project.codebuild_docker_image.name}"
+        ProjectName = aws_codebuild_project.codebuild_docker_image.name
       }
     }
   }
