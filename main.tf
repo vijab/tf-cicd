@@ -38,6 +38,15 @@ resource "aws_codebuild_project" "codebuild_docker_image" {
   }
 }
 
+resource "aws_ecr_repository" "image_repository" {
+  name                 = var.ecs_image_name
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
 resource "aws_codepipeline" "build_and_deploy" {
   name = "${var.ecs_image_name}_deployment"
   role_arn = aws_iam_role.cicd_role.arn
