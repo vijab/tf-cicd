@@ -9,6 +9,10 @@ variable "github_repo_owner" {
 #-END---Common Github Properties
 
 #-START---ECS Related Properties
+variable "ecs_repo_name" {
+  type = "string"
+}
+
 variable "ecs_image_name" {
   type = "string"
 }

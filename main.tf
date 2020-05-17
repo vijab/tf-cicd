@@ -39,7 +39,7 @@ resource "aws_codebuild_project" "codebuild_docker_image" {
 }
 
 resource "aws_ecr_repository" "image_repository" {
-  name                 = var.ecs_image_name
+  name                 = var.ecs_repo_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
