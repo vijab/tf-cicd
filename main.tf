@@ -1,7 +1,7 @@
 data "aws_region" "current" {}
 
 locals {
-  codebuild_s3_bucket_name = join("-", var.repo_name, var.repo_branch)
+  codebuild_s3_bucket_name = join("-", [var.repo_name, var.repo_branch])
 }
 
 resource "aws_codebuild_project" "codebuild_docker_image" {
